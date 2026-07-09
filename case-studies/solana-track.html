@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case study: the Solana track — Guille Mustafa</title>
+<meta name="description" content="Four Anchor programs building up the core DeFi primitives — subscription pass, vesting, atomic escrow, constant-product AMM — deployed to devnet, unified in one live dApp, with the Windows toolchain war stories included.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230d1220'/%3E%3Ctext x='50' y='68' font-size='52' text-anchor='middle' fill='%23a78bfa' font-family='monospace' font-weight='bold'%3EG%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="case.css">
+</head>
+<body>
+
+<nav><div class="wrap">
+  <span class="logo">guille@web3:~$</span>
+  <a class="back" href="../index.html">← back to portfolio</a>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="kicker">Case study · Solana / Anchor</div>
+  <h1>The Solana track — four programs, one ladder of DeFi primitives</h1>
+  <p class="lede">Not one-off demos: a deliberate progression through Solana's core patterns — <b>unilateral payment → time-locked release → bilateral atomic swap → continuous market</b> — each deployed and exercised for real on devnet, all consumable from a single live console. Coming from EVM, the interesting part is what translates and what doesn't.</p>
+  <div class="chips"><span class="chip">Rust</span><span class="chip">Anchor 1.1.2</span><span class="chip">SPL Token</span><span class="chip">PDAs</span><span class="chip">invoke_signed</span><span class="chip">wallet-adapter</span></div>
+  <div class="evidence-bar">
+    <a href="https://guillemustafa-ux.github.io/solana-hub/">Live devnet hub</a>
+    <a href="https://github.com/guillemustafa-ux/solana-escrow">Escrow repo</a>
+    <a href="https://github.com/guillemustafa-ux/solana-amm">AMM repo</a>
+    <a href="https://explorer.solana.com/address/2znMKASAPnrmDhMpmtScHiALvTEuQS28bn67RxT56gYc?cluster=devnet">Escrow on Explorer</a>
+  </div>
+</div></header>
+
+<main><div class="wrap">
+
+<section>
+  <h2><span class="dot"></span>The ladder</h2>
+  <div class="table-scroll"><table>
+    <tr><th>#</th><th>Program</th><th>Primitive</th><th>On devnet</th></tr>
+    <tr><td>1</td><td><a href="https://github.com/guillemustafa-ux/solana-access-pass">access-pass</a></td><td>Time-based subscription: pay SOL, a <code>Pass</code> PDA extends its expiry. A cross-chain port of my EVM BotPass — same product, both ecosystems.</td><td>Deployed; initialize + subscribe confirmed on-chain.</td></tr>
+    <tr><td>2</td><td><a href="https://github.com/guillemustafa-ux/solana-token-vesting">token-vesting</a></td><td>Linear + cliff, revocable SPL vesting — the VestingWallet pattern, Solana-native: a schedule PDA plus a token vault the PDA signs for via CPI.</td><td>Deployed; a real initialize→release cycle with an SPL mint.</td></tr>
+    <tr><td>3</td><td><a href="https://github.com/guillemustafa-ux/solana-escrow">escrow</a></td><td>Bilateral atomic swap (make / take / refund): both legs settle in one transaction or neither does. The base pattern of any OTC or marketplace.</td><td>Deployed; a real 100↔250 two-token swap settled, signatures in the README.</td></tr>
+    <tr><td>4</td><td><a href="https://github.com/guillemustafa-ux/solana-amm">amm</a></td><td>Constant-product AMM (x·y=k, the Uniswap V2 model): pools per canonical mint pair, PDA-owned vaults and LP mint, √(a·b) initial liquidity, bps fee, all rounding in the pool's favor.</td><td>Built, tested and published; devnet deploy pending (rent), auto-detected by the hub when it lands.</td></tr>
+  </table></div>
+  <p>All four are driven by <a href="https://guillemustafa-ux.github.io/solana-hub/"><b>solana-hub</b></a>, a React + wallet-adapter console that reads live on-chain state (no mocks): listings work without connecting a wallet, and Phantom/Solflare users can subscribe, crank <code>release()</code>, take escrow offers, and — once the AMM lands — inspect pools.</p>
+</section>
+
+<section>
+  <h2><span class="dot"></span>EVM → Solana: what actually translates</h2>
+  <div class="table-scroll"><table>
+    <tr><th>Concept</th><th>EVM habit</th><th>Solana reality</th></tr>
+    <tr><td>Identity</td><td>A contract deployed per instance (factory pattern)</td><td>A <b>PDA</b> derived from seeds — the AMM needs no factory: <code>["pool", mint_a, mint_b]</code> with canonical ordering <em>is</em> the registry.</td></tr>
+    <tr><td>Custody</td><td>The contract owns tokens in its own balance</td><td>Vault token accounts whose <b>authority is a PDA</b>; the program signs outgoing transfers with <code>invoke_signed</code> — nobody else can move them.</td></tr>
+    <tr><td>Authorization</td><td><code>msg.sender</code> + <code>approve</code>/<code>transferFrom</code></td><td>The user signs the same transaction; their transfers come straight from their token accounts. No allowance step.</td></tr>
+    <tr><td>State reads</td><td>Mirrored storage variables (<code>reserve0/reserve1</code> + <code>sync</code>)</td><td>Read the vault accounts at the start of each instruction — one less thing to desynchronize.</td></tr>
+    <tr><td>The LP token</td><td>The pair contract <em>is</em> an ERC-20</td><td>A separate SPL mint whose authority is the pool PDA — accounts compose, they don't inherit.</td></tr>
+  </table></div>
+</section>
+
+<section>
+  <h2><span class="dot"></span>War stories (native Windows, no WSL)</h2>
+  <p>Building this on native Windows surfaced real toolchain bugs — each documented in the repos so the next person loses minutes, not days:</p>
+  <div class="finding">
+    <h3>The interleaved IDL</h3>
+    <p><code>anchor idl build</code> died with <code>EOF while parsing a value</code>. Root cause: the IDL is emitted in fragments by the test harness, and <code>cargo test</code> runs <b>in parallel</b>, so fragments interleave on stdout and the parser receives corrupted JSON. Fix: capture single-threaded (<code>--test-threads=1</code>) and reassemble the fragments with a small Node script — shipped as <code>scripts/build-idl.cjs</code> in each repo.</p>
+  </div>
+  <div class="finding">
+    <h3>The silent stack overflow</h3>
+    <p>The AMM's 10-account liquidity instruction blew Solana's 4096-byte stack frame (<code>try_accounts</code> at 4480 bytes) — and <code>cargo-build-sbf</code> printed the error <b>but still emitted the .so with exit code 0</b>. Deploying that is undefined behavior. Fix: <code>Box</code> the <code>Mint</code>/<code>TokenAccount</code> accounts so deserialization goes to the heap. Lesson: check the build log, not the exit code.</p>
+  </div>
+  <div class="finding">
+    <h3>Honest testing when the validator won't start</h3>
+    <p><code>solana-test-validator</code> doesn't run on native Windows (genesis permission failure). The test suites are written — but instead of faking a green run, each README states it plainly and substitutes <b>stronger evidence: real devnet deploys with cited transaction signatures</b> anyone can open in the Explorer.</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="dot"></span>Constraints as security</h2>
+  <p>Each program leans on Anchor's account constraints as the security boundary: canonical mint ordering enforced at pool creation, <code>has_one</code> tying vaults to their owners, <code>close =</code> returning rent on settlement, bumps stored and reused instead of re-derived, and every arithmetic path in the AMM rounding in the pool's favor with u128 intermediates and explicit overflow errors. Program upgrade keypairs never touch git.</p>
+</section>
+
+</div></main>
+
+<footer><div class="wrap">
+  <p class="note"><b>Honesty note:</b> everything runs on Solana devnet (test network, no real value) and is labeled as such. Deployment evidence is cited by transaction signature, verifiable in the public Explorer.</p>
+  <div class="row">
+    <a href="../index.html">← Portfolio</a>
+    <a href="https://guillemustafa-ux.github.io/solana-hub/">Live devnet hub</a>
+    <a href="https://github.com/guillemustafa-ux/solana-amm">AMM repo</a>
+  </div>
+</div></footer>
+
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case study: PULSO — Guille Mustafa</title>
+<meta name="description" content="A full-stack non-custodial exchange demo: 11 modules, a real economic bug caught by adversarial audit before redeploy, trilingual i18n with parity guards, and a 3-layer test suite.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230d1220'/%3E%3Ctext x='50' y='68' font-size='52' text-anchor='middle' fill='%23a78bfa' font-family='monospace' font-weight='bold'%3EG%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="case.css">
+</head>
+<body>
+
+<nav><div class="wrap">
+  <span class="logo">guille@web3:~$</span>
+  <a class="back" href="../index.html">← back to portfolio</a>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="kicker">Case study · Full-stack product</div>
+  <h1>PULSO — a non-custodial exchange, and the bug we caught before you could</h1>
+  <p class="lede">Eleven modules, three languages, four test layers — but the part worth reading is the <b>post-mortem</b>: a real economic bug in the v1 staking contract, found by adversarial self-audit, quantified on-chain, and fixed with a two-layer defense before v2. That loop — ship, attack your own work, redeploy — is the product.</p>
+  <div class="chips"><span class="chip">React/Vite</span><span class="chip">FastAPI</span><span class="chip">Solidity/Foundry</span><span class="chip">wagmi</span><span class="chip">Groq LLM</span><span class="chip">i18n ×3</span><span class="chip">Playwright</span><span class="chip">pytest</span></div>
+  <div class="evidence-bar">
+    <a href="https://github.com/guillemustafa-ux/pulso-exchange">Repository</a>
+    <a href="https://pulso-exchange.vercel.app">Live demo</a>
+    <a href="https://sepolia.etherscan.io/address/0x6006EA579603439e22fb090bD5233f1f6fba06df">PulsoStaking v2 (verified)</a>
+  </div>
+</div></header>
+
+<main><div class="wrap">
+
+<section>
+  <h2><span class="dot"></span>What it is</h2>
+  <p>A demo-grade, <b>non-custodial</b> exchange platform: live market data (top 100 with sparklines and candlestick detail), a crypto↔USD↔ARS converter with MEP/CCL/USDT dollar rates for the Argentine market, wallet portfolio valuation, price alerts, a DeFi protocol comparator, an Argentina-focused yield table, on-chain staking with a real wallet, paper-trading bots (DCA / Grid / SMA crossover) running on a backend engine, a trends dashboard, an 8-lesson education course with quizzes, and a context-aware AI assistant. Every module states plainly what's testnet and what's paper — no fabricated numbers anywhere.</p>
+</section>
+
+<section>
+  <h2><span class="dot"></span>The post-mortem: a Synthetix-pattern edge case, found at home</h2>
+  <p>The v1 deploy script called <code>notifyRewardAmount</code> in the same broadcast as the deploy — <b>before any staker existed</b>. In the Synthetix staking pattern, with <code>totalSupply == 0</code>, <code>rewardPerToken()</code> doesn't advance but <code>lastUpdateTime</code> does: every token dripped until the first <code>stake()</code> is credited to no one. And because <code>recoverERC20</code> excludes the staking token entirely (a deliberate safety rule), those tokens are <b>irrecoverable by design</b>.</p>
+  <div class="callout"><p>Quantified on-chain with <code>cast</code> during the internal audit: <b>~917 PULSO orphaned in ~6.6 hours</b> (3.334 PULSO/day drip rate). Not a hypothesis — a measured number against the live v1 contract.</p></div>
+  <p><b>The v2 fix, two layers:</b></p>
+  <ol>
+    <li><code>notifyRewardAmount</code> now reverts with <code>NoStakers()</code> when <code>totalSupply == 0</code> — the contract refuses the foot-gun.</li>
+    <li>The deploy script anchors 1 PULSO of deployer stake <b>before</b> funding rewards — the operational cause can't recur.</li>
+  </ol>
+  <p><b>Alternative considered and rejected:</b> freezing <code>lastUpdateTime</code> while supply is zero (a variant some Synthetix forks use) gifts the entire accrued span to whoever stakes first — front-runnable, and worse than requiring the anchor. The residual case (everyone exits mid-period) is quantified by a dedicated test and accepted as a known trade-off rather than papered over with gas-heavy checkpoints.</p>
+  <p>Other deliberate contract decisions documented in <a href="https://github.com/guillemustafa-ux/pulso-exchange/blob/master/DESIGN.md">DESIGN.md</a>: an <b>asymmetric pause</b> (<code>pause()</code> can stop staking and claiming, but <code>unstake</code> is never pausable — a "non-custodial" system whose pause traps principal is a contradiction), and <code>notifyRewardAmount</code> doing an atomic <em>pull</em> with a solvency check instead of trusting a prior transfer.</p>
+</section>
+
+<section>
+  <h2><span class="dot"></span>Engineering that doesn't show in screenshots</h2>
+  <div class="table-scroll"><table>
+    <tr><th>Layer</th><th>What's there</th></tr>
+    <tr><td>Contracts</td><td>PulsoToken + PulsoStaking v2 verified on Sepolia, 20 Foundry tests including an adversarial suite and a solvency invariant born from the post-mortem.</td></tr>
+    <tr><td>Backend</td><td>FastAPI with a background paper-trading engine (aiosqlite, WAL, single-flight TTL caches per router), global + per-endpoint rate limiting, and graceful degradation everywhere: if CriptoYa / DefiLlama / alternative.me are down, the API serves what it can instead of failing. When CoinGecko started rejecting datacenter IPs in production, /top100 grew a keyless CoinPaprika fallback validated against the same pydantic model. <b>57 pytest tests</b>, all upstreams mocked.</td></tr>
+    <tr><td>Frontend</td><td>React + Vite + wagmi/RainbowKit, 11 lazy-loaded modules, shared rate helpers, defensive localStorage (broken JSON degrades, never crashes). <b>23 vitest unit tests</b> on the pure logic.</td></tr>
+    <tr><td>E2E</td><td><b>6 Playwright flows</b> against the real production build with the API fully stubbed via route interception — deterministic, no upstream flakes: market table, converter math end-to-end, alerts firing, i18n switch.</td></tr>
+    <tr><td>i18n</td><td>ES/EN/PT at 421 keys ×3 with a CI parity guard — plus the full education course (8 lessons + 32 quiz questions) editorially translated, with its own content-parity check (same IDs, same question counts, same correct answers across languages).</td></tr>
+    <tr><td>CI</td><td>Three jobs (Foundry / web / api) on every push: build, lint, both parity guards, all four test layers.</td></tr>
+  </table></div>
+</section>
+
+<section>
+  <h2><span class="dot"></span>Lessons</h2>
+  <ul>
+    <li><b>Audit your own deploys like an attacker</b> — the v1 bug wasn't in the contract logic, it was in the <em>orchestration</em> (deploy script ordering). The fix hardened both.</li>
+    <li><b>Degrade, don't die:</b> every external dependency (four data upstreams + an LLM) has a tested failure path that keeps the product usable.</li>
+    <li><b>Guards over discipline:</b> i18n and lesson parity are CI checks, not review checklist items — they can't silently rot.</li>
+  </ul>
+</section>
+
+</div></main>
+
+<footer><div class="wrap">
+  <p class="note"><b>Honesty note:</b> Sepolia testnet + paper trading throughout, labeled as such in the product itself. No profitability claims — the deliverable is the engineering and the audit loop.</p>
+  <div class="row">
+    <a href="../index.html">← Portfolio</a>
+    <a href="https://github.com/guillemustafa-ux/pulso-exchange">Repository</a>
+    <a href="https://pulso-exchange.vercel.app">Live demo</a>
+  </div>
+</div></footer>
+
+</body>
+</html>

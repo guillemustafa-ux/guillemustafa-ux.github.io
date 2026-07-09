@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case study: RWA Yield Protocol — Guille Mustafa</title>
+<meta name="description" content="How I built an ERC-7540 RWA tokenization protocol with a live UUPS upgrade, a NAV oracle, The Graph, Chainlink Automation + CCIP — and what a real self-audit found.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230d1220'/%3E%3Ctext x='50' y='68' font-size='52' text-anchor='middle' fill='%23a78bfa' font-family='monospace' font-weight='bold'%3EG%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="case.css">
+</head>
+<body>
+
+<nav><div class="wrap">
+  <span class="logo">guille@web3:~$</span>
+  <a class="back" href="../index.html">← back to portfolio</a>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="kicker">Case study · Flagship</div>
+  <h1>RWA Yield Protocol — an ERC-7540 vault that survived its own audit</h1>
+  <p class="lede">A tokenized T-Bill protocol on Sepolia: async vault priced by a NAV oracle, <b>upgraded live (UUPS V1→V2) with real deposits inside</b>, indexed by The Graph, automated with Chainlink. This is the piece where the interesting part isn't the feature list — it's what the adversarial self-audit found, and what happened to each finding.</p>
+  <div class="chips"><span class="chip">Solidity 0.8.24</span><span class="chip">ERC-7540</span><span class="chip">UUPS</span><span class="chip">Chainlink Automation</span><span class="chip">CCIP</span><span class="chip">The Graph</span><span class="chip">Foundry</span><span class="chip">wagmi/viem</span></div>
+  <div class="evidence-bar">
+    <a href="https://github.com/guillemustafa-ux/rwa-yield-protocol">Repository</a>
+    <a href="https://rwa-yield-protocol.vercel.app">Live dApp</a>
+    <a href="https://sepolia.etherscan.io/address/0x48c78Ffe5A882069FC81Fb866510FAAE625109C4">Vault proxy (Etherscan)</a>
+    <a href="https://sepolia.etherscan.io/tx/0xa42a4c94f41756ec0e84986c61160c0277e0538d57aeeb313642d7fef1844594">The upgrade tx itself</a>
+  </div>
+</div></header>
+
+<main><div class="wrap">
+
+<section>
+  <h2><span class="dot"></span>The problem</h2>
+  <p>Real-world assets don't settle on-chain. A vault holding tokenized T-Bills can't price shares from its own balance the way a standard ERC-4626 does — the asset's value lives in an external NAV, deposits and redemptions need an operator in the loop (buy/sell the underlying off-chain), and users need a request → fulfill → claim flow instead of instant atomic swaps. That's exactly what <b>ERC-7540</b> (the standard used by Centrifuge and Maple) models, and building it end-to-end — contracts, oracle, indexing, automation, UI — is the difference between "I read the EIP" and "I shipped it".</p>
+</section>
+
+<section>
+  <h2><span class="dot"></span>What I built</h2>
+  <div class="table-scroll"><table>
+    <tr><th>Piece</th><th>What it does</th></tr>
+    <tr><td>TBillToken</td><td>ERC-20 for the synthetic RWA (6 decimals). Mint/burn gated by <code>ASSET_MANAGER_ROLE</code>. No logic of its own — the value lives in the feed, not the token.</td></tr>
+    <tr><td>RwaNavFeed</td><td>NAV oracle implementing the full Chainlink <code>AggregatorV3Interface</code>. Updates bounded by a ±5% deviation band and a 1-update/hour rate limit — mitigates fat-finger errors and key compromise.</td></tr>
+    <tr><td>RwaVault (V1→V2)</td><td>The ERC-7540 async vault: <code>requestDeposit/Redeem</code> → operator <code>fulfill</code> (price fixed there) → user <code>claim</code>. UUPS upgradeable, 4 separated roles, partial pause. V2 adds a 100 bps annual management fee accrued in shares — and it's the code running behind the proxy <b>today, via a real upgrade, not a redeploy</b>.</td></tr>
+    <tr><td>Subgraph</td><td>The Graph Studio indexes every request/fulfill/NAV event; the dApp's Activity and Analytics pages read on-chain history via GraphQL — no backend of my own.</td></tr>
+    <tr><td>Automation + CCIP</td><td>Chainlink Automation keeps NAV fresh; CCIP enables a cross-chain deposit path. Both live on Sepolia with cited evidence in the repo.</td></tr>
+    <tr><td>dApp</td><td>Vite + React + wagmi/viem: full request→pending→claimable→claim flow, NAV panel, activity history, analytics, admin panel.</td></tr>
+  </table></div>
+</section>
+
+<section>
+  <h2><span class="dot"></span>The live upgrade — why it matters</h2>
+  <p>On 2026-07-06, with real deposits already settled in the proxy, I executed <code>upgradeToAndCall(V2, initializeV2(feeBps=100, feeRecipient))</code>. The proxy address never changed; the implementation slot moved from V1 to V2; and the state — shares, <code>totalAssets()</code>, all four operational roles — survived intact. The README ships five copy-paste <code>cast</code> commands so anyone can verify this against the public RPC instead of trusting the prose: read the EIP-1967 slot, read the upgrade receipt's logs (<code>Upgraded</code>, <code>Initialized(2)</code>, <code>ManagementFeeInitialized</code>), read the surviving state.</p>
+  <div class="callout"><p><b>Why this is the senior signal:</b> anyone can deploy a contract. Upgrading one in place, with storage-layout diffs committed (<code>forge inspect storage-layout</code> V1 vs V2), a <code>reinitializer(2)</code> guard, and user funds inside — that's the operation production protocols actually fear, executed and documented so it can be independently verified.</p></div>
+</section>
+
+<section>
+  <h2><span class="dot"></span>The self-audit: 3 findings, 3 different fates</h2>
+  <p>An audit that "finds nothing" usually means it didn't look hard enough. This one found three things — and the honest part is that each one warranted a <em>different</em> response:</p>
+
+  <div class="finding">
+    <h3>(a) The assets-in-transit window <span class="badge ops">OPS RULE + QUANTIFIED</span></h3>
+    <p>Between <code>investInTBill</code> pulling USDC out and the corresponding <code>tBillToken.mint</code> landing in a separate tx, <code>totalAssets()</code> is momentarily understated. A <code>fulfillDeposit</code> priced inside that window overpays the new depositor at existing depositors' expense. <b>Decision: not fixed in code.</b> The actor is a trusted role that already has stronger powers; the fix is the operational rule "fulfill only with transit == 0" — but the rule is <em>proven, not stated</em>: a test quantifies the exact damage (Bob receives ~1.67× fair shares; Alice diluted to under $1 of her $1,000 in the limit case) and another proves that closing the window first restores fair pricing to ±0.01%.</p>
+  </div>
+
+  <div class="finding">
+    <h3>(b) ReentrancyGuard through a proxy <span class="badge proof">ASSUMPTION → PROOF</span></h3>
+    <p>The vault relies on OpenZeppelin's non-upgradeable <code>ReentrancyGuard</code> working correctly with an uninitialized (zero) slot behind a proxy. Correct on paper — but "correct on paper" isn't a standard for the thing guarding every <code>redeem</code>. Tests read the raw slot with <code>vm.load</code> (confirming it was never written), then attack with a malicious ERC-20 whose <code>transfer</code>/<code>transferFrom</code> re-enter mid-call — and confirm <code>ReentrancyGuardReentrantCall</code>. A design assumption became a demonstrated guarantee.</p>
+  </div>
+
+  <div class="finding">
+    <h3>(c) The fulfillRedeem liquidity gap <span class="badge fix">FIXED ON-CHAIN</span></h3>
+    <p>The one nobody put on the list. The multi-actor <b>invariant campaign</b> found it on its first run: <code>invariant_Solvency</code> failed when the fuzzer reached a state where the vault had promised claimants more liquid USDC than it held — <code>fulfillRedeem</code> recorded NAV-priced claims without checking liquidity, so a user's later <code>redeem()</code> reverted on a promise the contract couldn't keep. Unlike (a), the victim here is a <b>user</b>, not the shared pool — higher standard, so this one got a code fix: <code>fulfillRedeem</code> now caps by <code>_freeAssetBuffer()</code> and reverts with <code>InsufficientLiquidity(requested, available)</code>. The original bug-demonstration test was inverted to lock in the new behavior. Commit <code>77a01b5</code>.</p>
+  </div>
+
+  <p><b>The lesson in one sentence:</b> a table of known attack vectors is necessary but insufficient — the finding that became a real code fix was the one the fuzzer found, not the ones a human thought to list.</p>
+</section>
+
+<section>
+  <h2><span class="dot"></span>Verify it yourself</h2>
+  <p>Every claim above is checkable without trusting me:</p>
+  <ul>
+    <li><b>140 Foundry tests</b> run offline (unit + fuzz + invariants + attack vectors); 8 more fork tests consume the live Chainlink ETH/USD feed on Sepolia.</li>
+    <li>The README's <b>5 <code>cast</code> commands</b> verify the upgrade against the public RPC: implementation slot, receipt logs, surviving state, roles, and the live V2 fee.</li>
+    <li><a href="https://github.com/guillemustafa-ux/rwa-yield-protocol/blob/master/DESIGN.md">DESIGN.md</a> tells the full 3-findings story; <code>SECURITY.md</code> carries the threat model and the complete Slither triage.</li>
+  </ul>
+</section>
+
+</div></main>
+
+<footer><div class="wrap">
+  <p class="note"><b>Honesty note:</b> deployed on Sepolia testnet and labeled as such. The synthetic T-Bill is a demo asset; the engineering (7540 flow, UUPS upgrade, oracle bounds, invariant campaign) is the real deliverable.</p>
+  <div class="row">
+    <a href="../index.html">← Portfolio</a>
+    <a href="https://github.com/guillemustafa-ux/rwa-yield-protocol">Repository</a>
+    <a href="https://rwa-yield-protocol.vercel.app">Live dApp</a>
+  </div>
+</div></footer>
+
+</body>
+</html>

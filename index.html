@@ -27,7 +27,7 @@ a{color:var(--cyan);text-decoration:none}
 a:hover{text-decoration:underline}
 .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
 
-nav{position:sticky;top:0;z-index:10;background:rgba(10,13,22,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav{position:sticky;top:0;z-index:10;background:rgba(10,13,22,.85);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 nav .wrap{display:flex;align-items:center;gap:22px;height:56px;overflow-x:auto}
 nav .logo{font-family:var(--mono);font-weight:600;color:var(--violet);white-space:nowrap}
 nav a.nl{color:var(--muted);font-size:.86rem;white-space:nowrap}
@@ -113,7 +113,7 @@ code{font-family:var(--mono);font-size:.85em;color:var(--cyan)}
     <div class="stat"><div class="n">15+</div><div class="l">contracts verified on public testnets</div></div>
     <div class="stat"><div class="n">290+</div><div class="l">Foundry tests (fuzz + invariants)</div></div>
     <div class="stat"><div class="n">4</div><div class="l">Anchor programs (Solana devnet)</div></div>
-    <div class="stat"><div class="n">6</div><div class="l">live dApps &amp; demos</div></div>
+    <div class="stat"><div class="n">7</div><div class="l">live dApps &amp; demos</div></div>
   </div>
 </div></header>
 
@@ -201,7 +201,7 @@ code{font-family:var(--mono);font-size:.85em;color:var(--cyan)}
 
 <section id="solana"><div class="wrap">
   <h2><span class="dot"></span>Solana / Anchor</h2>
-  <p class="sec-sub">The core DeFi primitives implemented natively in Anchor — PDAs, CPI-signed vaults, canonical account design. Deployed and exercised for real on devnet.</p>
+  <p class="sec-sub">The core DeFi primitives implemented natively in Anchor — PDAs, CPI-signed vaults, canonical account design. Deployed and exercised for real on devnet. <a href="https://guillemustafa-ux.github.io/solana-hub/">Try them all in the live devnet hub ↗</a></p>
   <div class="grid">
 
     <div class="card">

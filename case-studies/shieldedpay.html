@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case study: ShieldedPay — Guille Mustafa</title>
+<meta name="description" content="Privacy Pools (Buterin et al.) implemented end-to-end: stealth addresses, a ZK privacy pool with association sets, Groth16 proving in the browser, fraud-proof slashing for the ASP — with a real ZK withdrawal executed on Sepolia.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230d1220'/%3E%3Ctext x='50' y='68' font-size='52' text-anchor='middle' fill='%23a78bfa' font-family='monospace' font-weight='bold'%3EG%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="case.css">
+</head>
+<body>
+
+<nav><div class="wrap">
+  <span class="logo">guille@web3:~$</span>
+  <a class="back" href="../index.html">← back to portfolio</a>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="kicker">Case study · Compliant privacy / ZK</div>
+  <h1>ShieldedPay — Privacy Pools, implemented instead of admired</h1>
+  <p class="lede">The 2023 Privacy Pools paper (Buterin, Illum, Nadler, Schär) argues that on-chain privacy and regulatory compliance are not opposites. This project is that argument as running code: stealth addresses for private receiving, a shielded pool where a withdrawal proves <b>in zero knowledge that the funds belong to a "clean" association set</b> — and a real Groth16 proof, generated against the live on-chain tree, <b>verified and paid out on Sepolia</b>.</p>
+  <div class="chips"><span class="chip">Circom / Groth16</span><span class="chip">21,735 constraints</span><span class="chip">Poseidon on-chain</span><span class="chip">ERC-5564 / 6538</span><span class="chip">Foundry</span><span class="chip">71 tests</span><span class="chip">browser proving</span></div>
+  <div class="evidence-bar">
+    <a href="https://github.com/guillemustafa-ux/shieldedpay">Repository</a>
+    <a href="https://shieldedpay.vercel.app">Live dApp</a>
+    <a href="https://sepolia.etherscan.io/tx/0xc4d21e0f37fe617587c70416ffba00aa8b766aff199fbaa576d74107af0531f4">The live ZK withdrawal tx</a>
+    <a href="https://sepolia.etherscan.io/address/0x1073AEDfbD3900A50eD5BE98698874383B8b13C9#code">PrivacyPool (verified)</a>
+  </div>
+</div></header>
+
+<main><div class="wrap">
+
+<section>
+  <h2><span class="dot"></span>The thesis: why association sets, not a mixer</h2>
+  <p>First-generation privacy tools (Tornado Cash being the archetype) offered anonymity as an <b>undivided set</b>: the ZK proof hides your deposit among all deposits — honest user and thief mathematically indistinguishable. That's why the whole set got sanctioned. Privacy Pools breaks the dilemma with a <b>second membership proof</b>: at withdrawal you prove your commitment is in the pool's Merkle tree <i>and</i> in a smaller "association set" that a provider has screened as clean — both in zero knowledge, revealing which member you are in neither.</p>
+  <p>The elegance is set-theoretic: an honest user can always stand behind a large clean set and stay anonymous inside it; a flagged deposit can't join any clean set, so its withdrawal proof simply cannot be built. <b>The user's choice of anonymity set is itself the compliance signal.</b> This is the direction the ecosystem is actually funding — Privacy Pools live on mainnet via 0xbow (Coinbase Ventures seed), the EF's Kohaku wallet, EIP-8182, the Privacy Stewards of Ethereum. The full argument is in <a href="https://github.com/guillemustafa-ux/shieldedpay/blob/master/docs/THESIS.md">docs/THESIS.md</a>.</p>
+</section>
+
+<section>
+  <h2><span class="dot"></span>What I built</h2>
+  <div class="table-scroll"><table>
+    <tr><th>Piece</th><th>What it does</th></tr>
+    <tr><td>withdraw.circom</td><td>The dual-membership circuit: two Poseidon Merkle inclusion proofs over the <i>same</i> commitment (state tree + association tree), nullifier hash against double-spend, and <code>recipient/relayer/fee</code> bound into the proof (Tornado's x·x pattern) so a malicious relayer can't redirect funds. 21,735 constraints; Groth16 over the public Hermez Powers-of-Tau, verified by its published hash — never a home-rolled ceremony.</td></tr>
+    <tr><td>PrivacyPool.sol</td><td>Fixed-denomination pool with an incremental Poseidon Merkle tree <b>on-chain</b> (hasher deployed from circomlibjs bytecode) and a root ring-buffer. Withdrawals verify the Groth16 proof and require the association root to have been published by the ASP.</td></tr>
+    <tr><td>ERC-5564 / ERC-6538</td><td>The receiving-privacy layer: stealth meta-address registry (EIP-712, replay-protected) + announcer. ECDH on secp256k1 runs entirely client-side; the dApp's Stealth tab derives addresses and private keys without gas.</td></tr>
+    <tr><td>Decentralized ASP</td><td>Beyond the paper's single-operator ASP: <code>ASPRegistry</code> with staked providers, per-provider root history, and <b>three on-chain fraud proofs</b> that make a lying ASP slashable (see below). Withdrawals can verify against any active registered provider.</td></tr>
+    <tr><td>dApp</td><td>Vite + React with <b>proving in the browser</b>: snarkjs + the 9.6&nbsp;MB proving key served as static assets. The secret note never leaves the user's machine. Deposit, withdraw and stealth tabs against the live Sepolia contracts.</td></tr>
+  </table></div>
+</section>
+
+<section>
+  <h2><span class="dot"></span>The live proof — evidence, not prose</h2>
+  <p>After deploying and seeding the pool, I didn't stop at "contracts verified". I reconstructed the Merkle tree locally, generated a real Groth16 proof against the <b>on-chain</b> root, and submitted the withdrawal: proof verified on-chain, nullifier marked spent, recipient paid — <a href="https://sepolia.etherscan.io/tx/0xc4d21e0f37fe617587c70416ffba00aa8b766aff199fbaa576d74107af0531f4">tx <code>0xc4d21e0f…0531f4</code></a>, 302,995 gas. Two public demo notes remain seeded so <b>anyone</b> can repeat the experiment from the dApp without depositing first.</p>
+  <div class="callout"><p><b>Why this matters:</b> the hard failure mode of ZK projects is the off-chain/on-chain mismatch — a tree that hashes differently in JS and Solidity, a verifier with reordered G2 coordinates, a digest that doesn't bind what you think it binds. A withdrawal that actually pays out on a public network proves the whole pipeline agrees, bit for bit.</p></div>
+</section>
+
+<section>
+  <h2><span class="dot"></span>Decentralizing the ASP — fraud proofs</h2>
+  <p>The paper leaves the Association Set Provider as a trusted role. I designed and implemented the next step (<a href="https://github.com/guillemustafa-ux/shieldedpay/blob/master/docs/DECENTRALIZED-ASP.md">docs/DECENTRALIZED-ASP.md</a>): multiple ASPs register with stake, and three challenge functions make dishonesty <b>provable and slashable on-chain</b> (50% of stake to the challenger):</p>
+  <ul>
+    <li><b>Integrity</b> — the published root doesn't match the Merkle root of the revealed set (recomputed on-chain with a Solidity Poseidon lib that replicates the JS tree 1:1).</li>
+    <li><b>Degenerate set</b> — a set below the minimum size, which would de-anonymize its members.</li>
+    <li><b>Inclusion of flagged funds</b> — the set contains a commitment on the flagged registry: the "permissive ASP" attack.</li>
+  </ul>
+  <p>The three compose: publishing a dirty root with a clean set-hash falls to the integrity challenge — no escape path. The limits are documented with the same honesty: censorship isn't slashable, data-withholding and taint <i>propagation</i> aren't recomputable on-chain, and those boundaries are stated in the doc rather than hidden.</p>
+</section>
+
+<section>
+  <h2><span class="dot"></span>Verify it yourself</h2>
+  <ul>
+    <li><b>71 Foundry tests + 4 circuit tests</b> run offline — including a test that verifies a <i>real</i> proof fixture on-chain, the association-set exclusion case (the compliance guarantee), double-spend, and the three fraud-proof paths.</li>
+    <li>All six contracts are <b>verified on Sepolia</b>; the README's deployment table links each one.</li>
+    <li>Withdraw a seeded demo note yourself at <a href="https://shieldedpay.vercel.app">shieldedpay.vercel.app</a> — your browser generates the zk-SNARK.</li>
+    <li>The ZK pipeline is reproducible: <code>circuits/build.sh</code> validates the constraint count, and the <code>.ptau</code> hash is checked against the published table.</li>
+  </ul>
+</section>
+
+</div></main>
+
+<footer><div class="wrap">
+  <p class="note"><b>Honesty note:</b> educational project on Sepolia testnet, not audited, labeled as such everywhere. A demo pool with a handful of deposits provides no real anonymity — the deliverable is the mechanism implemented end-to-end and its limits understood, which is precisely the thesis.</p>
+  <div class="row">
+    <a href="../index.html">← Portfolio</a>
+    <a href="https://github.com/guillemustafa-ux/shieldedpay">Repository</a>
+    <a href="https://shieldedpay.vercel.app">Live dApp</a>
+  </div>
+</div></footer>
+
+</body>
+</html>

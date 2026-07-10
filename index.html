@@ -110,10 +110,10 @@ code{font-family:var(--mono);font-size:.85em;color:var(--cyan)}
     <a class="btn" href="https://x.com/guillemustafaux">X / Twitter</a>
   </div>
   <div class="stats">
-    <div class="stat"><div class="n">15+</div><div class="l">contracts verified on public testnets</div></div>
-    <div class="stat"><div class="n">290+</div><div class="l">Foundry tests (fuzz + invariants)</div></div>
+    <div class="stat"><div class="n">20+</div><div class="l">contracts verified on public testnets</div></div>
+    <div class="stat"><div class="n">340+</div><div class="l">Foundry tests (fuzz + invariants)</div></div>
     <div class="stat"><div class="n">4</div><div class="l">Anchor programs (Solana devnet)</div></div>
-    <div class="stat"><div class="n">7</div><div class="l">live dApps &amp; demos</div></div>
+    <div class="stat"><div class="n">8</div><div class="l">live dApps &amp; demos</div></div>
   </div>
 </div></header>
 
@@ -141,6 +141,17 @@ code{font-family:var(--mono);font-size:.85em;color:var(--cyan)}
   <h2><span class="dot"></span>Ethereum / DeFi</h2>
   <p class="sec-sub">Foundry-first: fuzzing, invariant suites, gas snapshots and CI on every repo. All contracts verified on public testnets.</p>
   <div class="grid">
+
+    <div class="card">
+      <h3>ShieldedPay — compliant privacy <span class="badge live">LIVE dAPP</span> <span class="badge chain">ZK · SEPOLIA</span></h3>
+      <p>Privacy Pools (Buterin et al.) implemented end-to-end: ERC-5564/6538 stealth addresses plus a ZK privacy pool with association sets — Circom circuit (21.7k constraints), Groth16 proving in the browser, Poseidon tree on-chain. A real ZK withdrawal executed on Sepolia, tx in the README. 54 Foundry tests + circuit tests.</p>
+      <div class="chips"><span class="chip">ZK / Circom</span><span class="chip">Groth16</span><span class="chip">ERC-5564</span><span class="chip">Foundry</span></div>
+      <div class="links">
+        <a href="https://github.com/guillemustafa-ux/shieldedpay">Repository</a>
+        <a href="https://shieldedpay.vercel.app">Live dApp</a>
+        <a href="https://sepolia.etherscan.io/tx/0xc4d21e0f37fe617587c70416ffba00aa8b766aff199fbaa576d74107af0531f4">Live ZK withdrawal tx</a>
+      </div>
+    </div>
 
     <div class="card">
       <h3>YieldVault — ERC-4626 + ERC-7540 <span class="badge live">LIVE dAPP</span></h3>

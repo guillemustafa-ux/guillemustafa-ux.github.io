@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script>document.documentElement.classList.add('js');</script>
 <title>Guillermo Mustafa — Trading Systems Engineer</title>
 <meta name="description" content="Custom Pine Script v6 indicators and strategies, backtest audits in Python and broker integrations on demo and paper accounts. Every tool states a claim and shows how to check it.">
 <meta property="og:title" content="Guillermo Mustafa — Trading Systems Engineer">
@@ -137,21 +138,29 @@
   .pipe .pulse.v { fill: var(--violet-2); filter: drop-shadow(0 0 6px var(--violet)); }
   .log { margin-top: 12px; border-top: 1px solid var(--line); padding-top: 10px; font: 11.5px/1.7 var(--mono);
     color: var(--text-2); min-height: 92px; }
-  .log div { opacity: 0; transform: translateX(-6px); transition: opacity .35s var(--ease), transform .35s var(--ease); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .log div.on { opacity: 1; transform: none; }
+  /* Wrapped lines hang under the message, after the 10-character timestamp. */
+  .log div { overflow-wrap: anywhere; padding-left: 10ch; text-indent: -10ch; }
+  .js .log div { opacity: 0; transform: translateX(-6px); transition: opacity .35s var(--ease), transform .35s var(--ease); }
+  .js .log div.on { opacity: 1; transform: none; }
   .log .t { color: var(--muted); }
   .log .k { color: var(--tq); }
   .log .v { color: var(--violet-2); }
-  .pipe .foot { margin-top: 8px; font: 10.5px var(--mono); color: var(--muted); }
+  .pipe .foot { margin-top: 8px; font: 11.5px/1.5 var(--mono); color: var(--text-3); }
+  /* Two layouts of the same flow: horizontal on wide screens, stacked on phones,
+     where the horizontal one would scale its labels down to about 6px. */
+  .pipe .flow-v { display: none; }
+  .pipe .flow-v .label { font-size: 14px; }
+  .pipe .flow-v .sub { font-size: 12px; }
+  @media (max-width: 560px) { .pipe .flow-h { display: none; } .pipe .flow-v { display: block; } }
 
   /* Stats */
-  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; margin: 44px 0 0; border: 1px solid var(--line);
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin: 44px 0 0; border: 1px solid var(--line);
     border-radius: 14px; overflow: hidden; background: var(--line); }
   .stat { background: rgba(6, 19, 27, .85); padding: 18px 20px; }
   .stat b { display: block; font: 700 30px/1 var(--display); color: var(--text); letter-spacing: -.02em; }
   .stat b small { font-size: 16px; color: var(--tq); margin-left: 2px; }
   .stat span { display: block; margin-top: 6px; font-size: .82rem; color: var(--text-3); }
-  @media (max-width: 760px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .stat { padding: 14px 12px; } .stat b { font-size: 26px; } .stat span { font-size: .76rem; } }
 
   /* Sections */
   section { padding: 56px 0 8px; }
@@ -206,13 +215,14 @@
   footer .row { display: flex; flex-wrap: wrap; gap: 8px 18px; }
 
   /* Scroll reveal */
-  .reveal { opacity: 0; transform: translateY(14px); transition: opacity .6s var(--ease), transform .6s var(--ease); transition-delay: var(--d, 0s); }
-  .reveal.in { opacity: 1; transform: none; }
+  /* Scoped to .js so the page stays fully visible when scripts do not run. */
+  .js .reveal { opacity: 0; transform: translateY(14px); transition: opacity .6s var(--ease), transform .6s var(--ease); transition-delay: var(--d, 0s); }
+  .js .reveal.in { opacity: 1; transform: none; }
 
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
-    .reveal { opacity: 1; transform: none; }
-    .log div { opacity: 1; transform: none; }
+    .js .reveal { opacity: 1; transform: none; }
+    .js .log div { opacity: 1; transform: none; }
   }
 </style>
 </head>
@@ -256,7 +266,7 @@
 
       <div class="pipe" aria-label="Illustrative signal flow: TradingView alert to receiver to broker on a paper account">
         <div class="title"><span>Signal flow</span><span class="live">paper account</span></div>
-        <svg viewBox="0 0 520 150" role="img" aria-hidden="true">
+        <svg class="flow-h" viewBox="0 0 520 150" aria-hidden="true">
           <defs>
             <path id="wire1" d="M150 48 C 172 48, 178 48, 200 48"/>
             <path id="wire2" d="M320 48 C 342 48, 348 48, 370 48"/>
@@ -278,6 +288,28 @@
           <circle class="pulse v" r="4" opacity="0"><animateMotion dur="1.4s" begin="p1.end" fill="freeze" id="p2"><mpath href="#wire2"/></animateMotion><set attributeName="opacity" to="1" begin="p1.end"/><set attributeName="opacity" to="0" begin="p2.end"/></circle>
           <circle class="pulse" r="4" opacity="0"><animateMotion dur="1.6s" begin="p2.end" fill="freeze" id="p3"><mpath href="#wire3"/></animateMotion><set attributeName="opacity" to="1" begin="p2.end"/><set attributeName="opacity" to="0" begin="p3.end"/></circle>
         </svg>
+        <svg class="flow-v" viewBox="0 0 320 270" aria-hidden="true">
+          <defs>
+            <path id="vwire1" d="M160 52 L160 84"/>
+            <path id="vwire2" d="M160 130 L160 162"/>
+            <path id="vwire3" d="M160 208 L160 236"/>
+          </defs>
+          <use href="#vwire1" class="wire"/><use href="#vwire2" class="wire"/><use href="#vwire3" class="wire"/>
+          <rect class="node" x="40" y="6" width="240" height="46" rx="10"/>
+          <text class="label" x="160" y="26" text-anchor="middle">TradingView</text>
+          <text class="sub" x="160" y="43" text-anchor="middle">alert() · webhook</text>
+          <rect class="node v" x="40" y="84" width="240" height="46" rx="10"/>
+          <text class="label" x="160" y="104" text-anchor="middle">Receiver</text>
+          <text class="sub" x="160" y="121" text-anchor="middle">idempotent · logged</text>
+          <rect class="node" x="40" y="162" width="240" height="46" rx="10"/>
+          <text class="label" x="160" y="182" text-anchor="middle">Broker API</text>
+          <text class="sub" x="160" y="199" text-anchor="middle">demo / paper</text>
+          <rect class="node" x="85" y="236" width="150" height="30" rx="8"/>
+          <text class="sub" x="160" y="256" text-anchor="middle" style="fill: var(--text-2)">audit log · fills</text>
+          <circle class="pulse" r="4"><animateMotion dur="1.4s" begin="0s;v3.end+1.2s" fill="freeze" id="v1"><mpath href="#vwire1"/></animateMotion></circle>
+          <circle class="pulse v" r="4" opacity="0"><animateMotion dur="1.4s" begin="v1.end" fill="freeze" id="v2"><mpath href="#vwire2"/></animateMotion><set attributeName="opacity" to="1" begin="v1.end"/><set attributeName="opacity" to="0" begin="v2.end"/></circle>
+          <circle class="pulse" r="4" opacity="0"><animateMotion dur="1.6s" begin="v2.end" fill="freeze" id="v3"><mpath href="#vwire3"/></animateMotion><set attributeName="opacity" to="1" begin="v2.end"/><set attributeName="opacity" to="0" begin="v3.end"/></circle>
+        </svg>
         <div class="log" id="log">
           <div><span class="t">00:00.000</span> <span class="k">alert</span> received  id=7f3a  strat=sweep-mss-fvg  side=long</div>
           <div><span class="t">00:00.041</span> <span class="v">dedupe</span> ok  idempotency key is new</div>
@@ -291,8 +323,7 @@
     <div class="stats reveal">
       <div class="stat"><b data-count="10" data-count-from="#scripts .card">10</b><span>open-source TradingView scripts</span></div>
       <div class="stat"><b data-count="4" data-count-from="#proofs .card">4</b><span>runnable proof repositories</span></div>
-      <div class="stat"><b>v6</b><span>Pine Script, non-repainting builds</span></div>
-      <div class="stat"><b data-count="100">100<small>%</small></b><span>written communication, on record</span></div>
+      <div class="stat"><b>v6</b><span>Pine Script version across all scripts</span></div>
     </div>
   </div>
 </header>
@@ -438,7 +469,7 @@
   <div class="faq">
     <details class="reveal" style="--d:.0s">
       <summary>Does your code repaint?</summary>
-      <div class="ans">Builds use confirmed data only, and each script ships with a check you can run on your own chart: the Repaint Auditor counts intrabar flicker and ghost signals live, and the ICT strategy carries a look-ahead A/B switch so the non-repainting claim is tested, not stated.</div>
+      <div class="ans">The strategies and alerts I write are built not to, and you can check it rather than take my word for it. Where a public script includes a repainting or look-ahead form, it is labeled and shown next to the honest one: the Repaint Auditor plots three request.security forms side by side and counts intrabar flicker and ghost signals live, and the ICT strategy has a look-ahead demo switch that is off by default.</div>
     </details>
     <details class="reveal" style="--d:.05s">
       <summary>How do you model fills and costs?</summary>
@@ -450,7 +481,7 @@
     </details>
     <details class="reveal" style="--d:.15s">
       <summary>Do you sign an NDA?</summary>
-      <div class="ans">Yes, yours or a standard one, before you share the rules. Confidentiality is the default anyway, with or without a document.</div>
+      <div class="ans">Yes. Send yours and I sign it once I have read it, or I can use a standard mutual NDA, before you share the rules. Confidentiality is the default anyway, with or without a document.</div>
     </details>
     <details class="reveal" style="--d:.2s">
       <summary>Do you guarantee profitability?</summary>
@@ -546,10 +577,9 @@
   // restarts. Total cycle matches the SMIL chain (1.4 + 1.4 + 1.6 + 1.2 s).
   var log = document.getElementById('log');
   var lines = log ? Array.prototype.slice.call(log.children) : [];
-  var svg = document.querySelector('.pipe svg');
   if (reduce) {
     lines.forEach(function (l) { l.classList.add('on'); });
-    if (svg && svg.pauseAnimations) svg.pauseAnimations();
+    document.querySelectorAll('.pipe svg').forEach(function (s) { if (s.pauseAnimations) s.pauseAnimations(); });
   } else if (lines.length) {
     var schedule = [0, 1400, 2800, 4300];
     var cycle = 5600;

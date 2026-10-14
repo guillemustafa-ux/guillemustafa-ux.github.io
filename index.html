@@ -152,6 +152,17 @@
   .pipe .flow-v .sub { font-size: 12px; }
   @media (max-width: 560px) { .pipe .flow-h { display: none; } .pipe .flow-v { display: block; } }
 
+  /* Hero side column: the flow card and the checks panel under it */
+  .hero-side { display: grid; gap: 14px; }
+  .checks ul { list-style: none; margin: 0; padding: 0; }
+  .checks li { display: grid; grid-template-columns: 11ch 1fr; gap: 12px; padding: 9px 0; border-top: 1px solid var(--line);
+    font: 12.5px/1.5 var(--mono); }
+  .checks li:first-child { border-top: 0; padding-top: 2px; }
+  .checks li > span { color: var(--tq); }
+  .checks li div { display: flex; flex-wrap: wrap; gap: 4px 14px; }
+  .checks a { color: var(--text); }
+  .checks a::after { content: " ↗"; color: var(--muted); font-size: .8em; }
+
   /* Stats */
   .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin: 44px 0 0; border: 1px solid var(--line);
     border-radius: 14px; overflow: hidden; background: var(--line); }
@@ -263,6 +274,7 @@
         </div>
       </div>
 
+      <div class="hero-side">
       <div class="pipe" role="figure" aria-label="Illustrative signal flow: TradingView alert to receiver to broker on a paper account">
         <div class="title"><span>Signal flow</span><span class="live">paper account</span></div>
         <svg class="flow-h" viewBox="0 0 520 150" aria-hidden="true">
@@ -316,6 +328,17 @@
           <div><span class="t">00:01.402</span> <span class="k">fill</span> logged  slippage=0.25  state synced</div>
         </div>
         <div class="foot">Illustrative flow. Nothing touches a live account until you have tested it and decided.</div>
+      </div>
+
+      <div class="pipe checks">
+        <div class="title"><span>Each check as a public script</span></div>
+        <ul>
+          <li><span>look-ahead</span><div><a href="https://www.tradingview.com/script/2pqi4yFB-Liquidity-Sweep-MSS-and-FVG-Entry-Model-with-Look-ahead-A-B/">Liquidity Sweep, MSS and FVG</a></div></li>
+          <li><span>repaint</span><div><a href="https://www.tradingview.com/script/7USFvRmd-Repaint-Auditor-Live-Flicker-Counter-and-request-security-A-B/">Repaint Auditor</a></div></li>
+          <li><span>fills</span><div><a href="https://www.tradingview.com/script/QXyp6oKQ-Intrabar-Ambiguity-Which-Hit-First-Stop-or-Target/">Intrabar Ambiguity</a><a href="https://www.tradingview.com/script/oTHxF7ou-Heikin-Ashi-Fill-Gap-What-a-Backtest-Gains-at-HA-Prices/">Heikin Ashi Fill Gap</a></div></li>
+          <li><span>costs</span><div><a href="https://www.tradingview.com/script/kQRPTxtz-Cost-Ladder-Does-a-Signal-Survive-0x-1x-and-2x-Costs/">Cost Ladder</a></div></li>
+        </ul>
+      </div>
       </div>
     </div>
 

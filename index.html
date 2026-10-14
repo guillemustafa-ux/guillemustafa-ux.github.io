@@ -7,7 +7,7 @@
 <title>Guillermo Mustafa — Trading Systems Engineer</title>
 <meta name="description" content="Custom Pine Script v6 indicators and strategies, backtest audits in Python and broker integrations on demo and paper accounts. Every tool states a claim and shows how to check it.">
 <meta property="og:title" content="Guillermo Mustafa — Trading Systems Engineer">
-<meta property="og:description" content="Pine Script v6, backtest audits and broker integrations, with look-ahead, repaint and cost checks built in.">
+<meta property="og:description" content="Pine Script v6, backtest audits and broker integrations on demo and paper accounts, with look-ahead, repaint and cost checks built in.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://guillemustafa-ux.github.io">
 <link rel="canonical" href="https://guillemustafa-ux.github.io">
@@ -21,10 +21,10 @@
   :root {
     color-scheme: dark;
     --bg0: #040b11; --bg1: #06131b; --bg2: #081a24;
-    --surface: rgba(9, 28, 38, .72); --surface-2: #0c2230;
+    --surface: rgba(9, 28, 38, .72);
     --line: rgba(46, 230, 214, .12); --line-2: rgba(46, 230, 214, .28); --line-v: rgba(124, 92, 255, .38);
     --text: #eafcfa; --text-2: #a9d4d0; --text-3: #6f9a98; --muted: #4f7472;
-    --tq: #2ee6d6; --cyan: #22e0ff; --tq-dim: #16a89d; --tq-ink: #03201d;
+    --tq: #2ee6d6; --cyan: #22e0ff; --tq-ink: #03201d;
     --violet: #7c5cff; --violet-2: #a78bfa;
     --display: "Space Grotesk", Inter, system-ui, sans-serif;
     --sans: Inter, system-ui, sans-serif;
@@ -80,7 +80,6 @@
   .brand .mark { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center;
     font: 700 15px var(--mono); color: var(--tq-ink); background: linear-gradient(135deg, var(--tq), var(--cyan));
     box-shadow: 0 0 18px rgba(46, 230, 214, .35); }
-  .brand .mark::after { content: ""; position: absolute; }
   nav .links { margin-left: auto; display: flex; gap: 4px; }
   nav .links a { color: var(--text-2); font-size: .88rem; padding: 6px 10px; border-radius: 8px; transition: color .2s, background .2s; }
   nav .links a:hover { color: var(--text); background: rgba(46, 230, 214, .08); text-decoration: none; }
@@ -264,7 +263,7 @@
         </div>
       </div>
 
-      <div class="pipe" aria-label="Illustrative signal flow: TradingView alert to receiver to broker on a paper account">
+      <div class="pipe" role="figure" aria-label="Illustrative signal flow: TradingView alert to receiver to broker on a paper account">
         <div class="title"><span>Signal flow</span><span class="live">paper account</span></div>
         <svg class="flow-h" viewBox="0 0 520 150" aria-hidden="true">
           <defs>

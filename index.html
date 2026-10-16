@@ -393,9 +393,27 @@
   <div class="grid">
     <div class="card reveal" style="--d:.0s">
       <span class="tag">indicator</span>
-      <h3>Best of N Lengths vs Shuffled Data</h3>
-      <p>Scans a moving-average rule over N lengths and tests whether the best one beats the best found on shuffled copies of the same returns.</p>
-      <div class="links"><a href="https://www.tradingview.com/script/9i6KR53K-Best-of-N-Lengths-vs-Shuffled-Data-Is-the-Optimum-Real/">TradingView</a><a href="https://github.com/guillemustafa-ux/best-of-n-vs-shuffled">code</a></div>
+      <h3>Fibonacci vs Random Ratios</h3>
+      <p>Tests whether pullbacks stop near the Fibonacci levels more often than near random ratios with the same tolerance, and reports how many random sets do as well.</p>
+      <div class="links"><a href="https://www.tradingview.com/script/MV9tTaED-Fibonacci-vs-Random-Ratios-Where-Pullbacks-Actually-Stop/">TradingView</a><a href="https://github.com/guillemustafa-ux/fibonacci-vs-random">code</a></div>
+    </div>
+    <div class="card reveal" style="--d:.0s">
+      <span class="tag">indicator</span>
+      <h3>Candlestick Patterns vs Baseline</h3>
+      <p>Six classic patterns compared with an all-bars baseline, forward returns with a 95% CI.</p>
+      <div class="links"><a href="https://www.tradingview.com/script/fGFxqicu-Candlestick-Patterns-vs-Baseline-Forward-Returns-95-CI/">TradingView</a><a href="https://github.com/guillemustafa-ux/candlestick-base-rates">code</a></div>
+    </div>
+    <div class="card reveal" style="--d:.1s">
+      <span class="tag">indicator</span>
+      <h3>GEX Levels with OI Age Check</h3>
+      <p>Gamma-exposure levels from a level string, with a freshness verdict on the open interest behind them.</p>
+      <div class="links"><a href="https://www.tradingview.com/script/uKwF557w-GEX-Levels-from-a-Level-String-with-OI-Age-Check/">TradingView</a><a href="https://github.com/guillemustafa-ux/gex-levels-proof">code</a></div>
+    </div>
+    <div class="card reveal" style="--d:.05s">
+      <span class="tag">strategy</span>
+      <h3>Liquidity Sweep, MSS and FVG</h3>
+      <p>An ICT entry model as a strategy, with a built-in look-ahead A/B so the non-repainting claim can be checked.</p>
+      <div class="links"><a href="https://www.tradingview.com/script/2pqi4yFB-Liquidity-Sweep-MSS-and-FVG-Entry-Model-with-Look-ahead-A-B/">TradingView</a><a href="https://github.com/guillemustafa-ux/ict-sweep-mss-fvg">code</a></div>
     </div>
     <div class="card reveal" style="--d:.0s">
       <span class="tag">indicator</span>
@@ -403,11 +421,17 @@
       <p>Counts how often stops placed k ATRs away are hit within N bars, and compares each rate with what a random walk of the same volatility predicts.</p>
       <div class="links"><a href="https://www.tradingview.com/script/ATVajrIj-ATR-Stops-vs-a-Random-Walk-How-Often-Noise-Hits-Them/">TradingView</a><a href="https://github.com/guillemustafa-ux/atr-stop-vs-random-walk">code</a></div>
     </div>
-    <div class="card reveal" style="--d:.0s">
+    <div class="card reveal" style="--d:.05s">
       <span class="tag">indicator</span>
-      <h3>MA Cross Whipsaw Tax</h3>
-      <p>Splits what a moving-average cross loses to quick reversals from its other trades and costs, and tests whether waiting a few bars before trusting a cross pays.</p>
-      <div class="links"><a href="https://www.tradingview.com/script/qDfurRAU-MA-Cross-Whipsaw-Tax-What-the-Fake-Crosses-Cost/">TradingView</a><a href="https://github.com/guillemustafa-ux/ma-cross-whipsaw-tax">code</a></div>
+      <h3>Cost Ladder</h3>
+      <p>Re-prices the same trades at 0x, 1x and 2x costs, with a 95% CI and the break-even cost.</p>
+      <div class="links"><a href="https://www.tradingview.com/script/kQRPTxtz-Cost-Ladder-Does-a-Signal-Survive-0x-1x-and-2x-Costs/">TradingView</a><a href="https://github.com/guillemustafa-ux/cost-ladder">code</a></div>
+    </div>
+    <div class="card reveal" style="--d:.1s">
+      <span class="tag">indicator</span>
+      <h3>Intrabar Ambiguity</h3>
+      <p>Finds the bars where a stop and a target both fit in one range, and settles them with lower-timeframe data instead of an assumed path.</p>
+      <div class="links"><a href="https://www.tradingview.com/script/QXyp6oKQ-Intrabar-Ambiguity-Which-Hit-First-Stop-or-Target/">TradingView</a><a href="https://github.com/guillemustafa-ux/intrabar-ambiguity">code</a></div>
     </div>
     <div class="card reveal" style="--d:.0s">
       <span class="tag">indicator</span>
@@ -417,9 +441,27 @@
     </div>
     <div class="card reveal" style="--d:.0s">
       <span class="tag">indicator</span>
-      <h3>Fibonacci vs Random Ratios</h3>
-      <p>Tests whether pullbacks stop near the Fibonacci levels more often than near random ratios with the same tolerance, and reports how many random sets do as well.</p>
-      <div class="links"><a href="https://www.tradingview.com/script/MV9tTaED-Fibonacci-vs-Random-Ratios-Where-Pullbacks-Actually-Stop/">TradingView</a><a href="https://github.com/guillemustafa-ux/fibonacci-vs-random">code</a></div>
+      <h3>Best of N Lengths vs Shuffled Data</h3>
+      <p>Scans a moving-average rule over N lengths and tests whether the best one beats the best found on shuffled copies of the same returns.</p>
+      <div class="links"><a href="https://www.tradingview.com/script/9i6KR53K-Best-of-N-Lengths-vs-Shuffled-Data-Is-the-Optimum-Real/">TradingView</a><a href="https://github.com/guillemustafa-ux/best-of-n-vs-shuffled">code</a></div>
+    </div>
+    <div class="card reveal" style="--d:.0s">
+      <span class="tag">indicator</span>
+      <h3>MA Cross Whipsaw Tax</h3>
+      <p>Splits what a moving-average cross loses to quick reversals from its other trades and costs, and tests whether waiting a few bars before trusting a cross pays.</p>
+      <div class="links"><a href="https://www.tradingview.com/script/qDfurRAU-MA-Cross-Whipsaw-Tax-What-the-Fake-Crosses-Cost/">TradingView</a><a href="https://github.com/guillemustafa-ux/ma-cross-whipsaw-tax">code</a></div>
+    </div>
+    <div class="card reveal" style="--d:.1s">
+      <span class="tag">indicator</span>
+      <h3>Seasonality vs Shuffled Calendar</h3>
+      <p>Tests the best month or weekday against a shuffled calendar, so the best of twelve is not mistaken for an edge.</p>
+      <div class="links"><a href="https://www.tradingview.com/script/5RcwXxp7-Seasonality-vs-Shuffled-Calendar-Is-the-Best-Month-Real/">TradingView</a><a href="https://github.com/guillemustafa-ux/seasonality-shuffle">code</a></div>
+    </div>
+    <div class="card reveal" style="--d:.05s">
+      <span class="tag">indicator</span>
+      <h3>Session DST Audit</h3>
+      <p>Checks one session string in a DST-aware zone and in a fixed offset, and counts the bars each one misses or adds when daylight saving time moves the clock.</p>
+      <div class="links"><a href="https://www.tradingview.com/script/EMa1CDGm-Session-DST-Audit-Does-a-Fixed-Offset-Session-Drift/">TradingView</a><a href="https://github.com/guillemustafa-ux/session-dst-audit">code</a></div>
     </div>
     <div class="card reveal" style="--d:.0s">
       <span class="tag">indicator</span>
@@ -433,53 +475,11 @@
       <p>Measures how old the value request.security returns is for up to three symbols, and counts the bars where it was carried forward from an older bar.</p>
       <div class="links"><a href="https://www.tradingview.com/script/txAVsq9Y-Data-Age-How-Old-Is-the-Value-request-security-Returns/">TradingView</a><a href="https://github.com/guillemustafa-ux/request-data-age">code</a></div>
     </div>
-    <div class="card reveal" style="--d:.05s">
-      <span class="tag">indicator</span>
-      <h3>Session DST Audit</h3>
-      <p>Checks one session string in a DST-aware zone and in a fixed offset, and counts the bars each one misses or adds when daylight saving time moves the clock.</p>
-      <div class="links"><a href="https://www.tradingview.com/script/EMa1CDGm-Session-DST-Audit-Does-a-Fixed-Offset-Session-Drift/">TradingView</a><a href="https://github.com/guillemustafa-ux/session-dst-audit">code</a></div>
-    </div>
-    <div class="card reveal" style="--d:.1s">
-      <span class="tag">indicator</span>
-      <h3>Intrabar Ambiguity</h3>
-      <p>Finds the bars where a stop and a target both fit in one range, and settles them with lower-timeframe data instead of an assumed path.</p>
-      <div class="links"><a href="https://www.tradingview.com/script/QXyp6oKQ-Intrabar-Ambiguity-Which-Hit-First-Stop-or-Target/">TradingView</a><a href="https://github.com/guillemustafa-ux/intrabar-ambiguity">code</a></div>
-    </div>
     <div class="card reveal" style="--d:.0s">
       <span class="tag">indicator</span>
       <h3>Repaint Auditor</h3>
       <p>Counts intrabar repaints and ghost signals live, and A/B tests three request.security forms.</p>
       <div class="links"><a href="https://www.tradingview.com/script/7USFvRmd-Repaint-Auditor-Live-Flicker-Counter-and-request-security-A-B/">TradingView</a><a href="https://github.com/guillemustafa-ux/repaint-auditor">code</a></div>
-    </div>
-    <div class="card reveal" style="--d:.05s">
-      <span class="tag">indicator</span>
-      <h3>Cost Ladder</h3>
-      <p>Re-prices the same trades at 0x, 1x and 2x costs, with a 95% CI and the break-even cost.</p>
-      <div class="links"><a href="https://www.tradingview.com/script/kQRPTxtz-Cost-Ladder-Does-a-Signal-Survive-0x-1x-and-2x-Costs/">TradingView</a><a href="https://github.com/guillemustafa-ux/cost-ladder">code</a></div>
-    </div>
-    <div class="card reveal" style="--d:.1s">
-      <span class="tag">indicator</span>
-      <h3>Seasonality vs Shuffled Calendar</h3>
-      <p>Tests the best month or weekday against a shuffled calendar, so the best of twelve is not mistaken for an edge.</p>
-      <div class="links"><a href="https://www.tradingview.com/script/5RcwXxp7-Seasonality-vs-Shuffled-Calendar-Is-the-Best-Month-Real/">TradingView</a><a href="https://github.com/guillemustafa-ux/seasonality-shuffle">code</a></div>
-    </div>
-    <div class="card reveal" style="--d:.0s">
-      <span class="tag">indicator</span>
-      <h3>Candlestick Patterns vs Baseline</h3>
-      <p>Six classic patterns compared with an all-bars baseline, forward returns with a 95% CI.</p>
-      <div class="links"><a href="https://www.tradingview.com/script/fGFxqicu-Candlestick-Patterns-vs-Baseline-Forward-Returns-95-CI/">TradingView</a><a href="https://github.com/guillemustafa-ux/candlestick-base-rates">code</a></div>
-    </div>
-    <div class="card reveal" style="--d:.05s">
-      <span class="tag">strategy</span>
-      <h3>Liquidity Sweep, MSS and FVG</h3>
-      <p>An ICT entry model as a strategy, with a built-in look-ahead A/B so the non-repainting claim can be checked.</p>
-      <div class="links"><a href="https://www.tradingview.com/script/2pqi4yFB-Liquidity-Sweep-MSS-and-FVG-Entry-Model-with-Look-ahead-A-B/">TradingView</a><a href="https://github.com/guillemustafa-ux/ict-sweep-mss-fvg">code</a></div>
-    </div>
-    <div class="card reveal" style="--d:.1s">
-      <span class="tag">indicator</span>
-      <h3>GEX Levels with OI Age Check</h3>
-      <p>Gamma-exposure levels from a level string, with a freshness verdict on the open interest behind them.</p>
-      <div class="links"><a href="https://www.tradingview.com/script/uKwF557w-GEX-Levels-from-a-Level-String-with-OI-Age-Check/">TradingView</a><a href="https://github.com/guillemustafa-ux/gex-levels-proof">code</a></div>
     </div>
   </div>
 </section>
